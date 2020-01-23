@@ -1,19 +1,31 @@
 package br.com.exemplo.demofileapi.service;
 
 import br.com.exemplo.demofileapi.config.FileStorageProperties;
+import br.com.exemplo.demofileapi.model.PessoaJuridica;
+import br.com.exemplo.demofileapi.util.FileHelper;
+import br.com.exemplo.demofileapi.validation.ValidationGroupSequence;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class FileService {
@@ -39,6 +51,8 @@ public class FileService {
         // Normalize file name
         String fileName = StringUtils.cleanPath(originalFilename.orElse(""));
 
+        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+
         try {
             // Check if the file's name contains invalid characters
             if (fileName.contains("..")) {
@@ -46,9 +60,24 @@ public class FileService {
                 throw new RuntimeException("Sorry! Filename contains invalid path sequence " + fileName);
             }
 
+            File realFile = new File(file.getOriginalFilename());
+
             // Copy file to the target location (Replacing existing file with the same name)
-            Path targetLocation = this.fileStorageLocation.resolve(fileName);
-            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            //Path targetLocation = this.fileStorageLocation.resolve(fileName);
+            //Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+
+            File tempDir = FileUtils.getTempDirectory();
+            FileUtils.copyFileToDirectory(realFile, tempDir);
+            File newTempFile = FileUtils.getFile(tempDir, file.getName());
+
+            String fileData = FileUtils.readFileToString(newTempFile, Charset.defaultCharset());
+
+            List<String> linhasDoArquivo = FileUtils.readLines(newTempFile, Charset.defaultCharset());
+
+            PessoaJuridica pessoaJuridica = FileHelper.extractPessoaJuridica(linhasDoArquivo.get(0));
+
+            // TODO enviar um objeto para validar
+            Set<ConstraintViolation<Object>> violations = validator.validate(pessoaJuridica, ValidationGroupSequence.class);
 
             return fileName;
         } catch (IOException ex) {
