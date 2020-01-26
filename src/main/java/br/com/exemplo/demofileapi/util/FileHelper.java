@@ -60,7 +60,7 @@ public class FileHelper {
     }
 
     public static void main(String args[]) throws FileNotFoundException {
-        Pattern pattern = Pattern.compile("[,\\.\\-;]");
+        /*Pattern pattern = Pattern.compile("[,\\.\\-;]");
 
         final CharSequence splitIt =
                 new FileAsCharSequence(new File("\\Users\\loce\\Postman\\files\\processed\\test-file.txt"));
@@ -68,6 +68,8 @@ public class FileHelper {
 
         Stream<String> stream = pattern.splitAsStream(splitIt);
 
-        stream.forEach(System.out::println);
+        stream.forEach(System.out::println);*/
+
+        System.out.println(System.getProperty("user.home"));
     }
 }
