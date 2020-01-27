@@ -2,10 +2,14 @@ package br.com.exemplo.demofileapi.service;
 
 import br.com.exemplo.demofileapi.config.FileStorageProperties;
 import br.com.exemplo.demofileapi.model.PessoaJuridica;
+import br.com.exemplo.demofileapi.util.FileConstants;
 import br.com.exemplo.demofileapi.util.FileHelper;
 import br.com.exemplo.demofileapi.util.FileSplitterV3;
+import br.com.exemplo.demofileapi.util.file.CustomFileReader;
+import br.com.exemplo.demofileapi.util.file.FileReaderFactory;
 import br.com.exemplo.demofileapi.validation.ValidationGroupSequence;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -62,17 +66,17 @@ public class FileService {
                 throw new RuntimeException("Sorry! Filename contains invalid path sequence " + fileName);
             }
 
-            //File realFile = new File(file.getOriginalFilename());
-            //File realFile = file.getResource().getFile();
             File realFile = multipartFileToFile(file);
+            String extension = FilenameUtils.getExtension(fileName);
 
-            //Path filePath = Paths.get(System.getProperty("user.home") + "/arquivosteste").toAbsolutePath().normalize();
+            CustomFileReader fileReader = FileReaderFactory.getFileReader(extension);
+            List<String> lines = fileReader.read(realFile);
 
             // Copy file to the target location (Replacing existing file with the same name)
             // Path targetLocation = this.fileStorageLocation.resolve(fileName);
             // Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
-            FileSplitterV3.splitFile(realFile, 100); // 1 KB
+            FileSplitterV3.splitFile(realFile, 100); // 100 KB
 
             //File tempDir = FileUtils.getTempDirectory();
             //FileUtils.copyFileToDirectory(realFile, tempDir);

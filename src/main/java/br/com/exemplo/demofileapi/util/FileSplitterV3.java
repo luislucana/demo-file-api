@@ -64,7 +64,7 @@ public class FileSplitterV3 {
     public static List<Path> splitFile(final File file, final int kbPerSplit) throws IOException {
 
         if (kbPerSplit <= 0) {
-            throw new IllegalArgumentException("mBperSplit must be more than zero");
+            throw new IllegalArgumentException("kbPerSplit must be more than zero");
         }
 
         List<Path> partFiles = new ArrayList<>();
