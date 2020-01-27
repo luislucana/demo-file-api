@@ -26,14 +26,15 @@ public class FileServerResource {
         return (new ResponseEntity<>("funcionou!", HttpStatus.OK));
     }
 
-    @RequestMapping(path = "/singlefileupload/", method = RequestMethod.POST)
+    @PostMapping(value = "/singlefileupload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> processFile(@RequestParam("file") MultipartFile file) throws IOException {
 
-        byte[] bytes = file.getBytes();
+        //byte[] bytes = file.getBytes();
 
         System.out.println("File Name: " + file.getOriginalFilename());
         System.out.println("File Content Type: " + file.getContentType());
-        System.out.println("File Content:\n" + new String(bytes));
+        //System.out.println("File Content:\n" + new String(bytes));
 
         String arquivo = fileService.storeFile(file);
 

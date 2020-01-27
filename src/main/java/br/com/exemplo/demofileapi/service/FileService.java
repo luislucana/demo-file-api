@@ -35,8 +35,9 @@ public class FileService {
 
     @Autowired
     public FileService(FileStorageProperties fileStorageProperties) {
-        this.fileStorageLocation = Paths.get(fileStorageProperties.getUploadDir())
-                .toAbsolutePath().normalize();
+        //this.fileStorageLocation = Paths.get(fileStorageProperties.getUploadDir())
+                //.toAbsolutePath().normalize();
+        this.fileStorageLocation = Paths.get(System.getProperty("user.home") + "/arquivosteste").toAbsolutePath().normalize();
 
         try {
             Files.createDirectories(this.fileStorageLocation);
@@ -61,32 +62,37 @@ public class FileService {
                 throw new RuntimeException("Sorry! Filename contains invalid path sequence " + fileName);
             }
 
-            File realFile = new File(file.getOriginalFilename());
+            //File realFile = new File(file.getOriginalFilename());
+            //File realFile = file.getResource().getFile();
+            File realFile = multipartFileToFile(file);
+
+            //Path filePath = Paths.get(System.getProperty("user.home") + "/arquivosteste").toAbsolutePath().normalize();
 
             // Copy file to the target location (Replacing existing file with the same name)
             // Path targetLocation = this.fileStorageLocation.resolve(fileName);
             // Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
-            FileSplitterV3.splitFile(realFile, 1); // 1 MB
+            FileSplitterV3.splitFile(realFile, 100); // 1 KB
 
-            File tempDir = FileUtils.getTempDirectory();
-            FileUtils.copyFileToDirectory(realFile, tempDir);
-            File newTempFile = FileUtils.getFile(tempDir, file.getName());
+            //File tempDir = FileUtils.getTempDirectory();
+            //FileUtils.copyFileToDirectory(realFile, tempDir);
+            //File newTempFile = FileUtils.getFile(tempDir, file.getName());
 
-            String fileData = FileUtils.readFileToString(newTempFile, Charset.defaultCharset());
+            //String fileData = FileUtils.readFileToString(newTempFile, Charset.defaultCharset());
 
-            List<String> linhasDoArquivo = FileUtils.readLines(newTempFile, Charset.defaultCharset());
+            //List<String> linhasDoArquivo = FileUtils.readLines(newTempFile, Charset.defaultCharset());
 
-            PessoaJuridica pessoaJuridica = FileHelper.extractPessoaJuridica(linhasDoArquivo.get(0));
+            //PessoaJuridica pessoaJuridica = FileHelper.extractPessoaJuridica(linhasDoArquivo.get(0));
 
             // TODO enviar um objeto para validar
-            Set<ConstraintViolation<Object>> violations = validator.validate(pessoaJuridica, ValidationGroupSequence.class);
+            //Set<ConstraintViolation<Object>> violations = validator.validate(pessoaJuridica, ValidationGroupSequence.class);
 
-            return fileName;
         } catch (IOException ex) {
             //throw new FileStorageException("Could not store file " + fileName + ". Please try again!", ex);
             throw new RuntimeException("Could not store file " + fileName + ". Please try again!", ex);
         }
+
+        return fileName;
     }
 
     public Resource loadFileAsResource(String fileName) {
@@ -103,5 +109,22 @@ public class FileService {
             //throw new MyFileNotFoundException("File not found " + fileName, ex);
             throw new RuntimeException("File not found " + fileName, ex);
         }
+    }
+
+    public File multipartFileToFile(MultipartFile mpfile) {
+
+        File file = new File(fileStorageLocation.toString(), mpfile.getOriginalFilename());
+
+        // Create the file using the touch method of the FileUtils class.
+        // FileUtils.touch(file);
+
+        // Write bytes from the multipart file to disk.
+        try {
+            FileUtils.writeByteArrayToFile(file, mpfile.getBytes());
+        } catch (IOException e) {
+            file = null;
+        }
+
+        return file;
     }
 }

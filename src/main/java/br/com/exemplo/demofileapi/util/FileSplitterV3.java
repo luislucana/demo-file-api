@@ -1,5 +1,7 @@
 package br.com.exemplo.demofileapi.util;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -13,8 +15,8 @@ import java.util.List;
 import java.util.UUID;
 
 public class FileSplitterV3 {
-    private static final String dir = "/tmp/";
-    private static final String suffix = ".splitPart";
+    private static final String dir = Paths.get(System.getProperty("user.home") + "/arquivosteste/").toAbsolutePath().toString();
+    private static final String extension = ".txt";
 
     public static Stream<String> convertFileToStream(String location) throws IOException {
         return Files.lines(Paths.get(location));
@@ -49,25 +51,27 @@ public class FileSplitterV3 {
 
             for (; position < numSplits; position++) {
                 //write multipart files.
-                writePartToFile(bytesPerSplit, position * bytesPerSplit, sourceChannel, partFiles);
+                writePartToFile(bytesPerSplit, fileName, position, position * bytesPerSplit, sourceChannel, partFiles);
             }
 
             if (remainingBytes > 0) {
-                writePartToFile(remainingBytes, position * bytesPerSplit, sourceChannel, partFiles);
+                writePartToFile(remainingBytes, fileName, position+1,position * bytesPerSplit, sourceChannel, partFiles);
             }
         }
         return partFiles;
     }
 
-    public static List<Path> splitFile(final File file, final int mBperSplit) throws IOException {
+    public static List<Path> splitFile(final File file, final int kbPerSplit) throws IOException {
 
-        if (mBperSplit <= 0) {
+        if (kbPerSplit <= 0) {
             throw new IllegalArgumentException("mBperSplit must be more than zero");
         }
 
         List<Path> partFiles = new ArrayList<>();
+        String originalName = file.getName();
         final long sourceSize = Files.size(file.toPath());
-        final long bytesPerSplit = 1024L * 1024L * mBperSplit;
+        //final long bytesPerSplit = 1024L * 1024L * mBperSplit;
+        final long bytesPerSplit = 1024L * kbPerSplit;
         final long numSplits = sourceSize / bytesPerSplit;
         final long remainingBytes = sourceSize % bytesPerSplit;
         int position = 0;
@@ -77,20 +81,23 @@ public class FileSplitterV3 {
 
             for (; position < numSplits; position++) {
                 //write multipart files.
-                writePartToFile(bytesPerSplit, position * bytesPerSplit, sourceChannel, partFiles);
+                writePartToFile(bytesPerSplit, originalName, position, position * bytesPerSplit, sourceChannel, partFiles);
             }
 
             if (remainingBytes > 0) {
-                writePartToFile(remainingBytes, position * bytesPerSplit, sourceChannel, partFiles);
+                writePartToFile(remainingBytes, originalName, position, position * bytesPerSplit, sourceChannel, partFiles);
             }
         }
         return partFiles;
     }
 
-    private static void writePartToFile(long byteSize, long position, FileChannel sourceChannel, List<Path> partFiles) throws IOException {
-        Path fileName = Paths.get(dir + UUID.randomUUID() + suffix);
+    private static void writePartToFile(long byteSize, String originalFileName, long partNumber,
+                                        long position, FileChannel sourceChannel, List<Path> partFiles)
+            throws IOException {
+        Path fileName =
+            Paths.get(dir + "/" + originalFileName.substring(0, originalFileName.length()-4) + "_parte" + String.valueOf(partNumber) + extension);
         try (RandomAccessFile toFile = new RandomAccessFile(fileName.toFile(), "rw");
-             FileChannel toChannel = toFile.getChannel()) {
+                FileChannel toChannel = toFile.getChannel()) {
             sourceChannel.position(position);
             toChannel.transferFrom(sourceChannel, 0, byteSize);
         }
