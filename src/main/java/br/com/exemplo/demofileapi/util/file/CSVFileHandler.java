@@ -1,20 +1,22 @@
 package br.com.exemplo.demofileapi.util.file;
 
+import br.com.exemplo.demofileapi.util.FileConstants;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.LineIterator;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-/**
- *
- *
- */
-public class TXTFileReader implements CustomFileReader {
+public class CSVFileHandler implements CustomFileHandler {
+
+    public static final String[] HEADERS = { "author", "title" };
 
     @Override
     public List<String> read(final File file) {
@@ -28,7 +30,7 @@ public class TXTFileReader implements CustomFileReader {
         String dataInicioFormatada = simpleDateFormat.format(calStart.getTime());
 
         System.out.println("===========================================================================");
-        System.out.println("[TXT Reader] INICIO - " + dataInicioFormatada);
+        System.out.println("[CSV Reader] INICIO - " + dataInicioFormatada);
         System.out.println("---------------------------------------------------------------------------");
 
         try {
@@ -43,25 +45,37 @@ public class TXTFileReader implements CustomFileReader {
         calEnd.setTimeInMillis(endTimeInMillis);
         String dataFimFormatada = simpleDateFormat.format(calEnd.getTime());
         System.out.println("---------------------------------------------------------------------------");
-        System.out.println("[TXT Reader] FIM - " + dataFimFormatada);
-        System.out.println("[TXT Reader] Tempo gasto (millisegundos): " + String.valueOf((endTimeInMillis - startTimeInMillis)) + " ms");
+        System.out.println("[CSV Reader] FIM - " + dataFimFormatada);
+        System.out.println("[CSV Reader] Tempo gasto (millisegundos): " + String.valueOf((endTimeInMillis - startTimeInMillis)) + " ms");
         System.out.println("===========================================================================");
 
         return lines;
     }
 
-    private List<String> readFile(final File file) throws IOException {
-        LineIterator it = FileUtils.lineIterator(file, "UTF-8");
+    @Override
+    public void write() {
 
+    }
+
+    @Override
+    public void split(final File file, final int kbPerSplit) {
+
+    }
+
+    private List<String> readFile(final File file) throws IOException {
         List<String> lines = FileUtils.readLines(file, "UTF-8");
 
-        try {
-            while (it.hasNext()) {
-                String line = it.nextLine();
-                System.out.println(line);
-            }
-        } finally {
-            LineIterator.closeQuietly(it);
+        //Reader in = new FileReader("src/test/resources/book.csv");
+        Reader in = new FileReader(file);
+        Iterable<CSVRecord> records = CSVFormat.DEFAULT.withHeader(CSVHeaders.class)
+                .withFirstRecordAsHeader().withDelimiter(FileConstants.CSV_SEPARATOR).parse(in);
+
+        for (CSVRecord record : records) {
+            String author = record.get(CSVHeaders.AUTHOR);
+            String title = record.get(CSVHeaders.TITLE);
+
+            System.out.println("Author: " + author);
+            System.out.println("Title: " + title);
         }
 
         return lines;

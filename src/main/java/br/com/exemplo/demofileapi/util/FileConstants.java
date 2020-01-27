@@ -10,9 +10,9 @@ public class FileConstants {
 
     // Supported file extensions for this app
     public static final class Extension {
-        public static final String TXT = "TXT";
-        public static final String CSV = "CSV";
-        public static final String XLS = "XLS";
+        public static final String TXT = "txt";
+        public static final String CSV = "csv";
+        public static final String XLS = "xls";
     }
 
 }

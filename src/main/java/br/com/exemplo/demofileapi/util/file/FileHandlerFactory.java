@@ -6,27 +6,27 @@ import org.apache.commons.lang3.StringUtils;
 /**
  *
  */
-public class FileReaderFactory {
+public class FileHandlerFactory {
 
-    public static CustomFileReader getFileReader(String extension) {
+    public static CustomFileHandler getFileHandler(String extension) {
 
-        CustomFileReader fileReader = null;
+        CustomFileHandler fileReader = null;
 
         if (StringUtils.isBlank(extension)) {
             throw new RuntimeException("Extensao nao informada.");
         }
 
-        extension = extension.toUpperCase();
+        extension = extension.toLowerCase();
 
         switch (extension) {
             case FileConstants.Extension.TXT:
-                fileReader = new TXTFileReader();
+                fileReader = new TXTFileHandler();
                 break;
             case FileConstants.Extension.CSV:
-                fileReader = new CSVFileReader();
+                fileReader = new CSVFileHandler();
                 break;
             case FileConstants.Extension.XLS:
-                fileReader = new XLSFileReader();
+                fileReader = new XLSFileHandler();
                 break;
             default:
                 throw new RuntimeException("Extensao invalida/nao suportada.");

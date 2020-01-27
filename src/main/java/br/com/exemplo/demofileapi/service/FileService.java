@@ -1,13 +1,9 @@
 package br.com.exemplo.demofileapi.service;
 
 import br.com.exemplo.demofileapi.config.FileStorageProperties;
-import br.com.exemplo.demofileapi.model.PessoaJuridica;
-import br.com.exemplo.demofileapi.util.FileConstants;
-import br.com.exemplo.demofileapi.util.FileHelper;
 import br.com.exemplo.demofileapi.util.FileSplitterV3;
-import br.com.exemplo.demofileapi.util.file.CustomFileReader;
-import br.com.exemplo.demofileapi.util.file.FileReaderFactory;
-import br.com.exemplo.demofileapi.validation.ValidationGroupSequence;
+import br.com.exemplo.demofileapi.util.file.CustomFileHandler;
+import br.com.exemplo.demofileapi.util.file.FileHandlerFactory;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,20 +13,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class FileService {
@@ -59,42 +51,38 @@ public class FileService {
 
         Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
-        try {
-            // Check if the file's name contains invalid characters
-            if (fileName.contains("..")) {
-                //throw new FileStorageException("Sorry! Filename contains invalid path sequence " + fileName);
-                throw new RuntimeException("Sorry! Filename contains invalid path sequence " + fileName);
-            }
-
-            File realFile = multipartFileToFile(file);
-            String extension = FilenameUtils.getExtension(fileName);
-
-            CustomFileReader fileReader = FileReaderFactory.getFileReader(extension);
-            List<String> lines = fileReader.read(realFile);
-
-            // Copy file to the target location (Replacing existing file with the same name)
-            // Path targetLocation = this.fileStorageLocation.resolve(fileName);
-            // Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-
-            FileSplitterV3.splitFile(realFile, 100); // 100 KB
-
-            //File tempDir = FileUtils.getTempDirectory();
-            //FileUtils.copyFileToDirectory(realFile, tempDir);
-            //File newTempFile = FileUtils.getFile(tempDir, file.getName());
-
-            //String fileData = FileUtils.readFileToString(newTempFile, Charset.defaultCharset());
-
-            //List<String> linhasDoArquivo = FileUtils.readLines(newTempFile, Charset.defaultCharset());
-
-            //PessoaJuridica pessoaJuridica = FileHelper.extractPessoaJuridica(linhasDoArquivo.get(0));
-
-            // TODO enviar um objeto para validar
-            //Set<ConstraintViolation<Object>> violations = validator.validate(pessoaJuridica, ValidationGroupSequence.class);
-
-        } catch (IOException ex) {
-            //throw new FileStorageException("Could not store file " + fileName + ". Please try again!", ex);
-            throw new RuntimeException("Could not store file " + fileName + ". Please try again!", ex);
+        // Check if the file's name contains invalid characters
+        if (fileName.contains("..")) {
+            //throw new FileStorageException("Sorry! Filename contains invalid path sequence " + fileName);
+            throw new RuntimeException("Sorry! Filename contains invalid path sequence " + fileName);
         }
+
+        File realFile = multipartFileToFile(file);
+        String extension = FilenameUtils.getExtension(fileName);
+
+        CustomFileHandler fileHandler = FileHandlerFactory.getFileHandler(extension);
+        List<String> lines = fileHandler.read(realFile);
+
+        // Copy file to the target location (Replacing existing file with the same name)
+        // Path targetLocation = this.fileStorageLocation.resolve(fileName);
+        // Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+
+        //FileSplitterV3.splitFile(realFile, 10); // 10 KB
+
+        fileHandler.split(realFile, 100);
+
+        //File tempDir = FileUtils.getTempDirectory();
+        //FileUtils.copyFileToDirectory(realFile, tempDir);
+        //File newTempFile = FileUtils.getFile(tempDir, file.getName());
+
+        //String fileData = FileUtils.readFileToString(newTempFile, Charset.defaultCharset());
+
+        //List<String> linhasDoArquivo = FileUtils.readLines(newTempFile, Charset.defaultCharset());
+
+        //PessoaJuridica pessoaJuridica = FileHelper.extractPessoaJuridica(linhasDoArquivo.get(0));
+
+        // TODO enviar um objeto para validar
+        //Set<ConstraintViolation<Object>> violations = validator.validate(pessoaJuridica, ValidationGroupSequence.class);
 
         return fileName;
     }
