@@ -1,14 +1,15 @@
 package br.com.exemplo.demofileapi.util.file;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.LineIterator;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFFont;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
+import java.util.*;
 
 public class XLSFileReader implements CustomFileReader {
 
@@ -46,19 +47,54 @@ public class XLSFileReader implements CustomFileReader {
         return lines;
     }
 
-    private List<String> readFile(final File file) throws IOException {
-        LineIterator it = FileUtils.lineIterator(file, "UTF-8");
+    private List<String> readFile(File file) throws IOException {
+        //List<String> lines = FileUtils.readLines(file, "UTF-8");
+        List<String> lines = null;
 
-        List<String> lines = FileUtils.readLines(file, "UTF-8");
+        Map<Integer, List<String>> dataMap = new HashMap<>();
 
-        try {
-            while (it.hasNext()) {
-                String line = it.nextLine();
-                System.out.println(line);
+        FileInputStream fileInputStream = new FileInputStream(file);
+        //Workbook workbook = new XSSFWorkbook(fileInputStream); // Nao funcionou!
+        Workbook workbook = WorkbookFactory.create(file); // Deste jeito funciona!
+        Sheet sheet = workbook.getSheetAt(0);
+        int i = 0;
+        for (Row row : sheet) {
+            dataMap.put(i, new ArrayList<String>());
+
+            for (Cell cell : row) {
+                switch (cell.getCellTypeEnum()) {
+                    case STRING:
+                        dataMap.get(i).add(cell.getRichStringCellValue().getString());
+                        break;
+                    case NUMERIC:
+                        if (DateUtil.isCellDateFormatted(cell)) {
+                            dataMap.get(i).add(cell.getDateCellValue() + "");
+                        } else {
+                            dataMap.get(i).add((int) cell.getNumericCellValue() + "");
+                        }
+                        break;
+                    case BOOLEAN:
+                        dataMap.get(i).add(cell.getBooleanCellValue() + "");
+                        break;
+                    case FORMULA:
+                        dataMap.get(i).add(cell.getCellFormula() + "");
+                        break;
+                    default:
+                        dataMap.get(i).add(" ");
+                }
             }
-        } finally {
-            LineIterator.closeQuietly(it);
+            i++;
         }
+
+        if (workbook != null) {
+            workbook.close();
+        }
+
+        // iterando com lambdas
+        // dataMap.forEach((k, v) -> System.out.println((k + ":" + v)));
+
+        // iterando com lambdas e Stream API
+        dataMap.entrySet().stream().forEach(e -> System.out.println(e.getKey() + ": " + e.getValue()));
 
         return lines;
     }
