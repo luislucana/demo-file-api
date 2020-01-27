@@ -3,6 +3,7 @@ package br.com.exemplo.demofileapi.service;
 import br.com.exemplo.demofileapi.config.FileStorageProperties;
 import br.com.exemplo.demofileapi.model.PessoaJuridica;
 import br.com.exemplo.demofileapi.util.FileHelper;
+import br.com.exemplo.demofileapi.util.FileSplitterV3;
 import br.com.exemplo.demofileapi.validation.ValidationGroupSequence;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,8 +64,10 @@ public class FileService {
             File realFile = new File(file.getOriginalFilename());
 
             // Copy file to the target location (Replacing existing file with the same name)
-            //Path targetLocation = this.fileStorageLocation.resolve(fileName);
-            //Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            // Path targetLocation = this.fileStorageLocation.resolve(fileName);
+            // Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+
+            FileSplitterV3.splitFile(realFile, 1); // 1 MB
 
             File tempDir = FileUtils.getTempDirectory();
             FileUtils.copyFileToDirectory(realFile, tempDir);

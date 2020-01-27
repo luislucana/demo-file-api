@@ -70,6 +70,18 @@ public class FileHelper {
 
         stream.forEach(System.out::println);*/
 
+        String generator = "src/main/resources/origem.txt";
+
+        Path path = Paths.get(generator);
+
+        File file = path.toFile();
+
+        if (file.exists()) {
+            System.out.println("existe");
+        } else {
+            System.out.println("nao existe");
+        }
+
         System.out.println(System.getProperty("user.home"));
     }
 }

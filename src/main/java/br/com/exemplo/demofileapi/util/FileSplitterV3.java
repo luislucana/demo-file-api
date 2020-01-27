@@ -1,5 +1,6 @@
 package br.com.exemplo.demofileapi.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
@@ -44,6 +45,34 @@ public class FileSplitterV3 {
         int position = 0;
 
         try (RandomAccessFile sourceFile = new RandomAccessFile(fileName, "r");
+             FileChannel sourceChannel = sourceFile.getChannel()) {
+
+            for (; position < numSplits; position++) {
+                //write multipart files.
+                writePartToFile(bytesPerSplit, position * bytesPerSplit, sourceChannel, partFiles);
+            }
+
+            if (remainingBytes > 0) {
+                writePartToFile(remainingBytes, position * bytesPerSplit, sourceChannel, partFiles);
+            }
+        }
+        return partFiles;
+    }
+
+    public static List<Path> splitFile(final File file, final int mBperSplit) throws IOException {
+
+        if (mBperSplit <= 0) {
+            throw new IllegalArgumentException("mBperSplit must be more than zero");
+        }
+
+        List<Path> partFiles = new ArrayList<>();
+        final long sourceSize = Files.size(file.toPath());
+        final long bytesPerSplit = 1024L * 1024L * mBperSplit;
+        final long numSplits = sourceSize / bytesPerSplit;
+        final long remainingBytes = sourceSize % bytesPerSplit;
+        int position = 0;
+
+        try (RandomAccessFile sourceFile = new RandomAccessFile(file, "r");
              FileChannel sourceChannel = sourceFile.getChannel()) {
 
             for (; position < numSplits; position++) {
