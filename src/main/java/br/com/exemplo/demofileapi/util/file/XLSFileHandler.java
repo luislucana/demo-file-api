@@ -114,7 +114,11 @@ public class XLSFileHandler implements CustomFileHandler {
                 newStyle.cloneStyleFrom(cell.getCellStyle());
                 newCell.setCellStyle(newStyle);
             }
+
             colCount = 0;
+
+            // TODO Verificar se o exemplo do link abaixo possui melhor desempenho
+            // https://svn.apache.org/repos/asf/poi/trunk/src/examples/src/org/apache/poi/xssf/eventusermodel/XLSX2CSV.java
         }
 
         /* Only add the last workbook if it has content */
