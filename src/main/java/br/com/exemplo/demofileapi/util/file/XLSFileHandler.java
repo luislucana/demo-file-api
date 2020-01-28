@@ -1,39 +1,19 @@
 package br.com.exemplo.demofileapi.util.file;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.io.FileUtils;
 import org.apache.poi.EncryptedDocumentException;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.streaming.SXSSFCell;
-import org.apache.poi.xssf.streaming.SXSSFRow;
-import org.apache.poi.xssf.streaming.SXSSFSheet;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFFont;
-import org.apache.poi.EncryptedDocumentException;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.streaming.SXSSFCell;
-import org.apache.poi.xssf.streaming.SXSSFRow;
-import org.apache.poi.xssf.streaming.SXSSFSheet;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class XLSFileHandler implements CustomFileHandler {
 
+    // TODO calcular quantidade de linhas que cada split de arquivo deverá ter
     private final int maxRows = 100;
 
     @Override
@@ -89,8 +69,8 @@ public class XLSFileHandler implements CustomFileHandler {
 
             /* Only split if there are more rows than the desired amount. */
             if (sheet.getPhysicalNumberOfRows() >= maxRows) {
-                List<Workbook> wbs = splitWorkbook(workbook);
-                writeWorkBooks(file.getName(), wbs);
+                List<Workbook> wbs = splitWorkbook(workbook, file.getName());
+                writeWorkBooks(file.getAbsolutePath(), wbs);
             }
             workbook.close();
         //} catch (EncryptedDocumentException | IOException | InvalidFormatException e) {
@@ -100,14 +80,15 @@ public class XLSFileHandler implements CustomFileHandler {
         }
     }
 
-    private List<Workbook> splitWorkbook(Workbook workbook) {
+    private List<Workbook> splitWorkbook(Workbook workbook, String filename) throws IOException {
         List<Workbook> workbooks = new ArrayList<Workbook>();
 
-        Workbook wb = new SXSSFWorkbook();
-        SXSSFSheet sh = (SXSSFSheet) wb.createSheet();
+        //Workbook wb = new SXSSFWorkbook();
+        Workbook wb = WorkbookFactory.create(false);
+        Sheet newSheet = wb.createSheet();
 
-        SXSSFRow newRow;
-        SXSSFCell newCell;
+        Row newRow = null;
+        Cell newCell = null;
 
         int rowCount = 0;
         int colCount = 0;
@@ -115,15 +96,15 @@ public class XLSFileHandler implements CustomFileHandler {
         Sheet sheet = workbook.getSheetAt(0);
 
         for (Row row : sheet) {
-            newRow = sh.createRow(rowCount++);
-
             /* Time to create a new workbook? */
             if (rowCount == maxRows) {
                 workbooks.add(wb);
-                wb = new SXSSFWorkbook();
-                sh = (SXSSFSheet) wb.createSheet();
+                wb = WorkbookFactory.create(false);
+                newSheet = wb.createSheet();
                 rowCount = 0;
             }
+
+            newRow = newSheet.createRow(rowCount++);
 
             for (Cell cell : row) {
                 newCell = newRow.createCell(colCount++);
@@ -140,10 +121,11 @@ public class XLSFileHandler implements CustomFileHandler {
         if (wb.getSheetAt(0).getPhysicalNumberOfRows() > 0) {
             workbooks.add(wb);
         }
+
         return workbooks;
     }
 
-    private SXSSFCell setValue(SXSSFCell newCell, Cell cell) {
+    private Cell setValue(Cell newCell, Cell cell) {
         switch (cell.getCellType()) {
             case STRING:
                 newCell.setCellValue(cell.getRichStringCellValue().getString());
