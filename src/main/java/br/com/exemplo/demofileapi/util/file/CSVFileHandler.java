@@ -9,7 +9,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -20,6 +23,8 @@ public class CSVFileHandler implements CustomFileHandler {
 
     // TODO calcular quantidade de linhas que cada split de arquivo deverá ter
     private final int maxRows = 100;
+
+    private static final String dir = Paths.get(System.getProperty("user.home") + "/arquivosteste/").toAbsolutePath().toString();
 
     @Override
     public List<String> read(final File file) {
@@ -61,8 +66,31 @@ public class CSVFileHandler implements CustomFileHandler {
     }
 
     @Override
-    public void split(final File file, final int kbPerSplit) {
+    public void split(final File file, final int kbPerSplit) throws IOException {
+        List<String> lines = FileUtils.readLines(file, "UTF-8");
 
+        final long bytesPerSplit = 1024L * kbPerSplit;
+        int partNumber = 1;
+        for (int i = 0; i < lines.size();) {
+
+            Path fileName =
+                    Paths.get(dir + "/" + file.getName().substring(0, file.getName().length()-4)
+                            + "_parte" + String.valueOf(partNumber) + "." + FileConstants.Extension.CSV);
+            File splitFile = fileName.toFile();
+
+            long qtdeBytes = 0;
+            List<String> splitLines = new ArrayList<>();
+
+            while ((i < lines.size()) && ((qtdeBytes + lines.get(i).getBytes().length) < bytesPerSplit)) {
+                byte[] bytes = lines.get(i).getBytes();
+                qtdeBytes = qtdeBytes + bytes.length;
+                splitLines.add(lines.get(i));
+                i++;
+            }
+
+            FileUtils.writeLines(splitFile, splitLines, true);
+            partNumber++;
+        }
     }
 
     private List<String> readFile(final File file) throws IOException {

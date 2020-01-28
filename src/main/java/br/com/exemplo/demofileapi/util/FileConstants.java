@@ -6,7 +6,7 @@ package br.com.exemplo.demofileapi.util;
  */
 public class FileConstants {
 
-    public static final Character CSV_SEPARATOR = ',';
+    public static final Character CSV_SEPARATOR = ';';
 
     // Supported file extensions for this app
     public static final class Extension {
