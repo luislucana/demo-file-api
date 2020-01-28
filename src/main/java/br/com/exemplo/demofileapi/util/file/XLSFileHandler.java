@@ -155,7 +155,7 @@ public class XLSFileHandler implements CustomFileHandler {
 
         try {
             for (int i = 0; i < wbs.size(); i++) {
-                String newFileName = filename.substring(0, filename.length() - 5);
+                String newFileName = filename.substring(0, filename.length() - 4);
                 out = new FileOutputStream(new File(newFileName + "_" + (i + 1) + ".xls"));
                 wbs.get(i).write(out);
                 out.close();
