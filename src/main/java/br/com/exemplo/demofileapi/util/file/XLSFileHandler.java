@@ -69,7 +69,7 @@ public class XLSFileHandler implements CustomFileHandler {
 
             /* Only split if there are more rows than the desired amount. */
             if (sheet.getPhysicalNumberOfRows() >= maxRows) {
-                List<Workbook> wbs = splitWorkbook(workbook, file.getName());
+                List<Workbook> wbs = splitWorkbook(workbook);
                 writeWorkBooks(file.getAbsolutePath(), wbs);
             }
             workbook.close();
@@ -80,7 +80,7 @@ public class XLSFileHandler implements CustomFileHandler {
         }
     }
 
-    private List<Workbook> splitWorkbook(Workbook workbook, String filename) throws IOException {
+    private List<Workbook> splitWorkbook(Workbook workbook) throws IOException {
         List<Workbook> workbooks = new ArrayList<Workbook>();
 
         //Workbook wb = new SXSSFWorkbook();

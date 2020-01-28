@@ -18,6 +18,9 @@ public class CSVFileHandler implements CustomFileHandler {
 
     public static final String[] HEADERS = { "author", "title" };
 
+    // TODO calcular quantidade de linhas que cada split de arquivo deverá ter
+    private final int maxRows = 100;
+
     @Override
     public List<String> read(final File file) {
         List<String> lines = null;

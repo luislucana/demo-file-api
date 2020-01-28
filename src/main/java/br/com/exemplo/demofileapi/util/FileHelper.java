@@ -7,6 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -59,7 +61,7 @@ public class FileHelper {
         Files.move(file1, file2);
     }
 
-    public static void main(String args[]) throws FileNotFoundException {
+    public static void main(String args[]) throws FileNotFoundException, UnsupportedEncodingException {
         /*Pattern pattern = Pattern.compile("[,\\.\\-;]");
 
         final CharSequence splitIt =
@@ -70,7 +72,7 @@ public class FileHelper {
 
         stream.forEach(System.out::println);*/
 
-        String generator = "src/main/resources/origem.txt";
+        /*String generator = "src/main/resources/origem.txt";
 
         Path path = Paths.get(generator);
 
@@ -82,6 +84,50 @@ public class FileHelper {
             System.out.println("nao existe");
         }
 
-        System.out.println(System.getProperty("user.home"));
+        System.out.println(System.getProperty("user.home"));*/
+
+        // The input string for this test
+        /*final String string = "Hello World";
+
+        // Check length, in characters
+        System.out.println(string.length()); // prints "11"
+
+        // Check encoded sizes
+        final byte[] utf8Bytes = string.getBytes(StandardCharsets.UTF_8);
+        System.out.println(utf8Bytes.length); // prints "11"
+
+        final byte[] utf16Bytes= string.getBytes(StandardCharsets.UTF_16);
+        System.out.println(utf16Bytes.length); // prints "24"
+
+        final byte[] utf32Bytes = string.getBytes("UTF-32");
+        System.out.println(utf32Bytes.length); // prints "44"
+
+        final byte[] isoBytes = string.getBytes(StandardCharsets.ISO_8859_1);
+        System.out.println(isoBytes.length); // prints "11"
+
+        final byte[] winBytes = string.getBytes("CP1252");
+        System.out.println(winBytes.length); // prints "11"*/
+
+        // ==================================================================
+        final String interesting = "\uF93D\uF936\uF949\uF942"; // Chinese ideograms
+
+        // Check length, in characters
+        System.out.println(interesting.length()); // prints "4"
+
+        // Check encoded sizes
+        final byte[] utf8Bytes = interesting.getBytes("UTF-8");
+        System.out.println(utf8Bytes.length); // prints "12"
+
+        final byte[] utf16Bytes= interesting.getBytes("UTF-16");
+        System.out.println(utf16Bytes.length); // prints "10"
+
+        final byte[] utf32Bytes = interesting.getBytes("UTF-32");
+        System.out.println(utf32Bytes.length); // prints "16"
+
+        final byte[] isoBytes = interesting.getBytes("ISO-8859-1");
+        System.out.println(isoBytes.length); // prints "4" (probably encoded "????")
+
+        final byte[] winBytes = interesting.getBytes("CP1252");
+        System.out.println(winBytes.length); // prints "4" (probably encoded "????")
     }
 }

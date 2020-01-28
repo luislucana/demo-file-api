@@ -6,6 +6,7 @@ import br.com.exemplo.demofileapi.util.file.CustomFileHandler;
 import br.com.exemplo.demofileapi.util.file.FileHandlerFactory;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.LineIterator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -63,13 +64,20 @@ public class FileService {
         CustomFileHandler fileHandler = FileHandlerFactory.getFileHandler(extension);
         List<String> lines = fileHandler.read(realFile);
 
+        // https://blog.caelum.com.br/entendendo-unicode-e-os-character-encodings/
+
+
         // Copy file to the target location (Replacing existing file with the same name)
         // Path targetLocation = this.fileStorageLocation.resolve(fileName);
         // Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
         //FileSplitterV3.splitFile(realFile, 10); // 10 KB
 
-        fileHandler.split(realFile, 100);
+        try {
+            fileHandler.split(realFile, 10);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         //File tempDir = FileUtils.getTempDirectory();
         //FileUtils.copyFileToDirectory(realFile, tempDir);
