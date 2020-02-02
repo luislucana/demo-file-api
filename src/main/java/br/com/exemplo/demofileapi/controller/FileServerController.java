@@ -13,6 +13,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.net.FileNameMap;
+import java.net.URI;
+import java.net.URLConnection;
+import java.nio.file.Files;
 import java.util.List;
 
 @RestController
@@ -43,6 +47,7 @@ public class FileServerController {
         return uploadFileResponse;
     }
 
+    // TODO Nao funciona, falta implementar e chamar a camada Service
     @RequestMapping(path = "/multiplefileupload/", method = RequestMethod.POST)
     public ResponseEntity<String> processFile(@RequestParam("files") List<MultipartFile> files) throws IOException {
 
@@ -65,9 +70,10 @@ public class FileServerController {
         // Try to determine file's content type
         String contentType = null;
         try {
-            contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+             contentType = Files.probeContentType(resource.getFile().toPath());
         } catch (IOException ex) {
             //logger.info("Could not determine file type.");
+            // TODO Verificar se este erro deve ser tratado aqui ou no Service
         }
 
         // Fallback to the default content type if type could not be determined
@@ -76,8 +82,8 @@ public class FileServerController {
         }
 
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(contentType))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
-                .body(resource);
+            .contentType(MediaType.parseMediaType(contentType))
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+            .body(resource);
     }
 }

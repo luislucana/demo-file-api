@@ -104,12 +104,14 @@ public class FileService {
     }
 
     public Resource loadFileAsResource(String fileName) {
+        Resource resource = null;
+
         try {
             Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
-            Resource resource = new UrlResource(filePath.toUri());
-            if(resource.exists()) {
-                return resource;
-            } else {
+
+            resource = new UrlResource(filePath.toUri());
+
+            if (!resource.exists()) {
                 //throw new MyFileNotFoundException("File not found " + fileName);
                 throw new RuntimeException("File not found " + fileName);
             }
@@ -117,8 +119,11 @@ public class FileService {
             //throw new MyFileNotFoundException("File not found " + fileName, ex);
             throw new RuntimeException("File not found " + fileName, ex);
         }
+
+        return resource;
     }
 
+    // TODO Esta incompleto, nao funciona!
     public File multipartFileToFile(MultipartFile mpfile) {
 
         File file = new File(fileStorageLocation.toString(), mpfile.getOriginalFilename());
