@@ -1,4 +1,4 @@
-package br.com.exemplo.demofileapi.upload;
+package ignorar.br.com.exemplo.demofileapi.upload;
 
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;

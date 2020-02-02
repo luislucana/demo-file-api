@@ -1,4 +1,4 @@
-package br.com.exemplo.demofileapi.util;
+package ignorar.br.com.exemplo.demofileapi.util;
 
 public enum HeaderFields {
 

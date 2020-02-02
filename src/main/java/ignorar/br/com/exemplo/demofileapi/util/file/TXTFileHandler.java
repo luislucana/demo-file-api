@@ -1,15 +1,13 @@
-package br.com.exemplo.demofileapi.util.file;
+package ignorar.br.com.exemplo.demofileapi.util.file;
 
 import br.com.exemplo.demofileapi.util.FileConstants;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
@@ -22,7 +20,7 @@ import java.util.List;
  *
  *
  */
-public class TXTFileHandler implements CustomFileHandler {
+public class TXTFileHandler implements FileHandler {
 
     // TODO calcular quantidade de linhas que cada split de arquivo deverá ter
     private final int maxRows = 100;

@@ -1,4 +1,4 @@
-package br.com.exemplo.demofileapi.util.file;
+package ignorar.br.com.exemplo.demofileapi.util.file;
 
 import br.com.exemplo.demofileapi.util.FileConstants;
 import org.apache.commons.csv.CSVFormat;
@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
@@ -17,12 +18,9 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-public class CSVFileHandler implements CustomFileHandler {
+public class CSVFileHandler implements FileHandler {
 
     public static final String[] HEADERS = { "author", "title" };
-
-    // TODO calcular quantidade de linhas que cada split de arquivo deverá ter
-    private final int maxRows = 100;
 
     private static final String dir = Paths.get(System.getProperty("user.home") + "/arquivosteste/").toAbsolutePath().toString();
 
@@ -74,8 +72,10 @@ public class CSVFileHandler implements CustomFileHandler {
         for (int i = 0; i < lines.size();) {
 
             Path fileName =
-                    Paths.get(dir + "/" + file.getName().substring(0, file.getName().length()-4)
-                            + "_parte" + String.valueOf(partNumber) + "." + FileConstants.Extension.CSV);
+                Paths.get(FileConstants.DEFAULT_DIRECTORY
+                    + "/" + file.getName().substring(0, file.getName().length()-4)
+                    + "_parte" + String.valueOf(partNumber) + "." + FileConstants.Extension.CSV);
+
             File splitFile = fileName.toFile();
 
             long qtdeBytes = 0;
@@ -94,9 +94,8 @@ public class CSVFileHandler implements CustomFileHandler {
     }
 
     private List<String> readFile(final File file) throws IOException {
-        List<String> lines = FileUtils.readLines(file, "UTF-8");
+        List<String> lines = FileUtils.readLines(file, StandardCharsets.UTF_8);
 
-        //Reader in = new FileReader("src/test/resources/book.csv");
         Reader in = new FileReader(file);
         Iterable<CSVRecord> records = CSVFormat.DEFAULT.withHeader(CSVHeaders.class)
                 .withFirstRecordAsHeader().withDelimiter(FileConstants.CSV_SEPARATOR).parse(in);

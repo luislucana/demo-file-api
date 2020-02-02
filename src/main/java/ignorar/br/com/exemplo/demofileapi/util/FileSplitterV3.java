@@ -1,6 +1,4 @@
-package br.com.exemplo.demofileapi.util;
-
-import org.springframework.web.multipart.MultipartFile;
+package ignorar.br.com.exemplo.demofileapi.util;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,10 +7,9 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.stream.Stream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.stream.Stream;
 
 public class FileSplitterV3 {
     private static final String dir = Paths.get(System.getProperty("user.home") + "/arquivosteste/").toAbsolutePath().toString();

@@ -1,4 +1,4 @@
-package br.com.exemplo.demofileapi.model;
+package ignorar.br.com.exemplo.demofileapi.model;
 
 import org.hibernate.validator.constraints.Length;
 

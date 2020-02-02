@@ -1,21 +1,18 @@
-package br.com.exemplo.demofileapi.util;
+package ignorar.br.com.exemplo.demofileapi.util;
 
-import br.com.exemplo.demofileapi.model.PessoaFisica;
-import br.com.exemplo.demofileapi.model.PessoaJuridica;
+import ignorar.br.com.exemplo.demofileapi.model.PessoaFisica;
+import ignorar.br.com.exemplo.demofileapi.model.PessoaJuridica;
+import ignorar.br.com.exemplo.demofileapi.util.HeaderFields;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import java.util.UUID;
-import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 public class FileHelper {
 

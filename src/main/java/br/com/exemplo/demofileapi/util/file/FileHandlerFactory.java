@@ -8,30 +8,33 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class FileHandlerFactory {
 
-    public static CustomFileHandler getFileHandler(String extension) {
+    public static FileHandlerSingleton getFileHandler(String extension) {
 
-        CustomFileHandler fileReader = null;
+        FileHandlerSingleton fileHandler = null;
 
         if (StringUtils.isBlank(extension)) {
-            throw new RuntimeException("Extensao nao informada.");
+            throw new RuntimeException("Extensao de arquivo invalida.");
         }
 
         extension = extension.toLowerCase();
 
         switch (extension) {
             case FileConstants.Extension.TXT:
-                fileReader = new TXTFileHandler();
+                //fileHandler = new TXTFileHandler();
+                fileHandler = FileHandlerSingleton.TXT_INSTANCE;
                 break;
             case FileConstants.Extension.CSV:
-                fileReader = new CSVFileHandler();
+                //fileHandler = new CSVFileHandler();
+                fileHandler = FileHandlerSingleton.CSV_INSTANCE;
                 break;
             case FileConstants.Extension.XLS:
-                fileReader = new XLSFileHandler();
+                //fileHandler = new XLSFileHandler();
+                fileHandler = FileHandlerSingleton.XLS_INSTANCE;
                 break;
             default:
                 throw new RuntimeException("Extensao invalida/nao suportada.");
         }
 
-        return fileReader;
+        return fileHandler;
     }
 }

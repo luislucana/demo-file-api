@@ -1,4 +1,4 @@
-package br.com.exemplo.demofileapi.upload;
+package br.com.exemplo.demofileapi.controller;
 
 import br.com.exemplo.demofileapi.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;

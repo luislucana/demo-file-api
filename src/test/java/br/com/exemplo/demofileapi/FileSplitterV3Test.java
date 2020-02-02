@@ -1,6 +1,6 @@
 package br.com.exemplo.demofileapi;
 
-import br.com.exemplo.demofileapi.util.FileSplitterV3;
+import ignorar.br.com.exemplo.demofileapi.util.FileSplitterV3;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;

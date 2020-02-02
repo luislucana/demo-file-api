@@ -1,4 +1,4 @@
-package br.com.exemplo.demofileapi.util.file;
+package ignorar.br.com.exemplo.demofileapi.util.file;
 
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.util.ZipSecureFile;
@@ -9,9 +9,14 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
-public class XLSFileHandler implements CustomFileHandler {
+public class XLSFileHandler implements FileHandler {
 
     // TODO calcular quantidade de linhas que cada split de arquivo deverá ter
     private final int maxRows = 100;
@@ -184,7 +189,8 @@ public class XLSFileHandler implements CustomFileHandler {
             dataMap.put(i, new ArrayList<String>());
 
             for (Cell cell : row) {
-                switch (cell.getCellTypeEnum()) {
+                //switch (cell.getCellTypeEnum()) { // deprecated
+                switch (cell.getCellType()) {
                     case STRING:
                         dataMap.get(i).add(cell.getRichStringCellValue().getString());
                         break;
