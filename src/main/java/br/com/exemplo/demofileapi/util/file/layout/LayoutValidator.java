@@ -131,7 +131,7 @@ public class LayoutValidator {
                 switch (type.toUpperCase()) {
                     case FileConstants.VariableType.NUMBER:
                         try {
-                            Integer.valueOf(headerTitle)
+                            Integer.valueOf(headerTitle);
                         } catch (NumberFormatException nfe) {
                             throw new InvalidLayoutException("Arquivo com layout invalido.", nfe);
                         }
