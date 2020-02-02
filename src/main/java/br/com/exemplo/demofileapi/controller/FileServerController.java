@@ -16,7 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/demo-file-api")
-public class FileServerResource {
+public class FileServerController {
 
     @Autowired
     private FileService fileService;

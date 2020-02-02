@@ -88,7 +88,8 @@ public class CSVFileHandler implements FileHandler {
                 i++;
             }
 
-            FileUtils.writeLines(splitFile, splitLines, true);
+            FileUtils.writeLines(splitFile, StandardCharsets.UTF_8.name(), splitLines,
+                    System.getProperty("line.separator"),false);
             partNumber++;
         }
     }

@@ -5,6 +5,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.FileUtils;
 import org.apache.poi.EncryptedDocumentException;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.apache.poi.ss.usermodel.*;
 
@@ -12,8 +13,10 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Baseado nos artigos:
@@ -28,66 +31,63 @@ public enum FileHandlerSingleton {
         public List<String> read(File file) throws IOException {
             List<String> lines = null;
 
-            long startTimeInMillis = System.currentTimeMillis();
+            try {
+                FileHelper.logInicio(FileConstants.Extension.TXT);
 
-            Calendar calStart = new GregorianCalendar();
-            calStart.setTimeInMillis(startTimeInMillis);
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss SSS");
-            String dataInicioFormatada = simpleDateFormat.format(calStart.getTime());
+                lines = FileUtils.readLines(file, StandardCharsets.UTF_8);
 
-            System.out.println("===========================================================================");
-            System.out.println("[TXT File Handler] INICIO - " + dataInicioFormatada);
-            System.out.println("---------------------------------------------------------------------------");
-
-            lines = FileUtils.readLines(file, StandardCharsets.UTF_8);
-
-            long endTimeInMillis = System.currentTimeMillis();
-            Calendar calEnd = new GregorianCalendar();
-            calEnd.setTimeInMillis(endTimeInMillis);
-            String dataFimFormatada = simpleDateFormat.format(calEnd.getTime());
-            System.out.println("---------------------------------------------------------------------------");
-            System.out.println("[TXT File Handler] FIM - " + dataFimFormatada);
-            System.out.println("[TXT File Handler] Tempo gasto (millisegundos): " + String.valueOf((endTimeInMillis - startTimeInMillis)) + " ms");
-            System.out.println("===========================================================================");
+            } finally {
+                FileHelper.logFim(FileConstants.Extension.TXT);
+            }
 
             return lines;
         }
 
         @Override
-        public Map<Path, List<String>> split(File file, int kbPerSplit) throws IOException {
-            Map<Path, List<String>> filePartsMap = new HashMap<>();
+        public void splitAndStore(File file, int kbPerSplit) throws IOException {
+            try {
+                FileHelper.logInicio(FileConstants.Extension.TXT);
 
-            final long bytesPerSplit = 1024L * kbPerSplit;
-            int partNumber = 1;
+                final long bytesPerSplit = 1024L * kbPerSplit;
+                int partNumber = 1;
 
-            // (3) Apache Commons IO
-            long fileSize = FileUtils.sizeOf(file); // bytes
+                // Apache Commons IO
+                long fileSize = FileUtils.sizeOf(file); // bytes
 
-            List<String> lines = FileUtils.readLines(file, StandardCharsets.UTF_8);
-
-            for (int i = 0; i < lines.size(); partNumber++) {
-                Path fileName =
-                        Paths.get(FileConstants.DEFAULT_DIRECTORY
-                                + "/" + file.getName().substring(0, file.getName().length() - 4)
-                                + "_parte" + String.valueOf(partNumber) + "." + FileConstants.Extension.TXT);
-
-                File splitFile = fileName.toFile();
-
-                long qtdeBytes = 0;
-                List<String> splitLines = new ArrayList<>();
-
-                while ((i < lines.size()) && ((qtdeBytes + lines.get(i).getBytes().length) < bytesPerSplit)) {
-                    byte[] bytes = lines.get(i).getBytes();
-                    qtdeBytes = qtdeBytes + bytes.length;
-                    splitLines.add(lines.get(i));
-                    i++;
+                // tamanho do arquivo <= tamanho máximo de arquivo
+                if (fileSize <= bytesPerSplit) {
+                    //return null;
                 }
 
-                filePartsMap.put(fileName, splitLines);
-                //FileUtils.writeLines(splitFile, splitLines, true);
-            }
+                List<String> lines = FileUtils.readLines(file, StandardCharsets.UTF_8);
 
-            return filePartsMap;
+                for (int i = 0; i < lines.size(); partNumber++) {
+                    Path fileName =
+                            Paths.get(FileConstants.DEFAULT_DIRECTORY
+                                    + "/" + file.getName().substring(0, file.getName().length() - 4)
+                                    + "_parte" + String.valueOf(partNumber) + "." + FileConstants.Extension.TXT);
+
+                    File filePart = fileName.toFile();
+
+                    long qtdeBytes = 0;
+                    List<String> filePartLines = new ArrayList<>();
+
+                    while ((i < lines.size()) && ((qtdeBytes + lines.get(i).getBytes().length) < bytesPerSplit)) {
+                        // TODO remover esta linha que somente printa as linhas do arquivo no console
+                        System.out.println(lines.get(i));
+
+                        byte[] bytes = lines.get(i).getBytes();
+                        qtdeBytes = qtdeBytes + bytes.length;
+                        filePartLines.add(lines.get(i));
+                        i++;
+                    }
+
+                    FileUtils.writeLines(filePart, StandardCharsets.UTF_8.name(), filePartLines,
+                            System.getProperty("line.separator"), false);
+                }
+            } finally {
+                FileHelper.logFim(FileConstants.Extension.TXT);
+            }
         }
     },
 
@@ -96,62 +96,64 @@ public enum FileHandlerSingleton {
         public List<String> read(File file) throws IOException {
             List<String> lines = null;
 
-            long startTimeInMillis = System.currentTimeMillis();
+            try {
+                FileHelper.logInicio(FileConstants.Extension.CSV);
 
-            Calendar calStart = new GregorianCalendar();
-            calStart.setTimeInMillis(startTimeInMillis);
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss SSS");
-            String dataInicioFormatada = simpleDateFormat.format(calStart.getTime());
+                //lines = FileUtils.readLines(file, StandardCharsets.UTF_8);
+                lines = readCSVFile(file);
 
-            System.out.println("===========================================================================");
-            System.out.println("[CSV File Handler] INICIO - " + dataInicioFormatada);
-            System.out.println("---------------------------------------------------------------------------");
-
-            //lines = FileUtils.readLines(file, StandardCharsets.UTF_8);
-            lines = readCSVFile(file);
-
-            long endTimeInMillis = System.currentTimeMillis();
-            Calendar calEnd = new GregorianCalendar();
-            calEnd.setTimeInMillis(endTimeInMillis);
-            String dataFimFormatada = simpleDateFormat.format(calEnd.getTime());
-            System.out.println("---------------------------------------------------------------------------");
-            System.out.println("[CSV File Handler] FIM - " + dataFimFormatada);
-            System.out.println("[CSV File Handler] Tempo gasto (millisegundos): " + String.valueOf((endTimeInMillis - startTimeInMillis)) + " ms");
-            System.out.println("===========================================================================");
+            } finally {
+                FileHelper.logFim(FileConstants.Extension.CSV);
+            }
 
             return lines;
         }
 
         @Override
-        public Map<Path, List<String>> split(File file, int kbPerSplit) throws IOException {
-            List<String> lines = FileUtils.readLines(file, StandardCharsets.UTF_8);
+        public void splitAndStore(File file, int kbPerSplit) throws IOException {
+            try {
+                FileHelper.logInicio(FileConstants.Extension.CSV);
 
-            final long bytesPerSplit = 1024L * kbPerSplit;
-            int partNumber = 1;
+                final long bytesPerSplit = 1024L * kbPerSplit;
+                int partNumber = 1;
 
-            for (int i = 0; i < lines.size();) {
-                Path fileName =
-                        Paths.get(FileConstants.DEFAULT_DIRECTORY
-                                + "/" + file.getName().substring(0, file.getName().length()-4)
-                                + "_parte" + String.valueOf(partNumber) + "." + FileConstants.Extension.CSV);
+                // Apache Commons IO
+                long fileSize = FileUtils.sizeOf(file); // bytes
 
-                File splitFile = fileName.toFile();
-
-                long qtdeBytes = 0;
-                List<String> splitLines = new ArrayList<>();
-
-                while ((i < lines.size()) && ((qtdeBytes + lines.get(i).getBytes().length) < bytesPerSplit)) {
-                    byte[] bytes = lines.get(i).getBytes();
-                    qtdeBytes = qtdeBytes + bytes.length;
-                    splitLines.add(lines.get(i));
-                    i++;
+                // tamanho do arquivo <= tamanho máximo de arquivo
+                if (fileSize <= bytesPerSplit) {
+                    //return null;
                 }
 
-                FileUtils.writeLines(splitFile, splitLines, true);
-                partNumber++;
-            }
+                List<String> lines = FileUtils.readLines(file, StandardCharsets.UTF_8);
 
-            return null;
+                for (int i = 0; i < lines.size(); partNumber++) {
+                    Path fileName =
+                            Paths.get(FileConstants.DEFAULT_DIRECTORY
+                                    + "/" + file.getName().substring(0, file.getName().length() - 4)
+                                    + "_parte" + String.valueOf(partNumber) + "." + FileConstants.Extension.CSV);
+
+                    File filePart = fileName.toFile();
+
+                    long qtdeBytes = 0;
+                    List<String> filePartLines = new ArrayList<>();
+
+                    while ((i < lines.size()) && ((qtdeBytes + lines.get(i).getBytes().length) < bytesPerSplit)) {
+                        // TODO remover esta linha que somente printa as linhas do arquivo no console
+                        System.out.println(lines.get(i));
+
+                        byte[] bytes = lines.get(i).getBytes();
+                        qtdeBytes = qtdeBytes + bytes.length;
+                        filePartLines.add(lines.get(i));
+                        i++;
+                    }
+
+                    FileUtils.writeLines(filePart, StandardCharsets.UTF_8.name(), filePartLines,
+                            System.getProperty("line.separator"), false);
+                }
+            } finally {
+                FileHelper.logFim(FileConstants.Extension.CSV);
+            }
         }
 
         private List<String> readCSVFile(final File file) throws IOException {
@@ -178,65 +180,69 @@ public enum FileHandlerSingleton {
         public List<String> read(File file) throws IOException {
             List<String> lines = null;
 
-            long startTimeInMillis = System.currentTimeMillis();
+            try {
+                FileHelper.logInicio(FileConstants.Extension.XLS);
 
-            Calendar calStart = new GregorianCalendar();
-            calStart.setTimeInMillis(startTimeInMillis);
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss SSS");
-            String dataInicioFormatada = simpleDateFormat.format(calStart.getTime());
+                lines = this.readFile(file);
 
-            System.out.println("===========================================================================");
-            System.out.println("[XLS File Handler] INICIO - " + dataInicioFormatada);
-            System.out.println("---------------------------------------------------------------------------");
-
-            lines = this.readFile(file);
-
-            long endTimeInMillis = System.currentTimeMillis();
-            Calendar calEnd = new GregorianCalendar();
-            calEnd.setTimeInMillis(endTimeInMillis);
-            String dataFimFormatada = simpleDateFormat.format(calEnd.getTime());
-            System.out.println("---------------------------------------------------------------------------");
-            System.out.println("[XLS File Handler] FIM - " + dataFimFormatada);
-            System.out.println("[XLS File Handler] Tempo gasto (millisegundos): " + String.valueOf((endTimeInMillis - startTimeInMillis)) + " ms");
-            System.out.println("===========================================================================");
+            } finally {
+                FileHelper.logFim(FileConstants.Extension.XLS);
+            }
 
             return lines;
         }
 
+        /**
+         * Ver
+         * https://github.com/eugenp/tutorials/blob/master/spring-mvc-java/src/main/java/com/baeldung/excel/ExcelPOIHelper.java
+         * https://stackoverflow.com/questions/37366599/how-to-split-a-excel-file-into-multiple-files-based-on-row-count-using-apache-po/37369058
+         *
+         * @param file
+         * @param kbPerSplit
+         * @return
+         * @throws IOException
+         */
         @Override
-        public Map<Path, List<String>> split(File file, int kbPerSplit) throws IOException {
-            final int maxRows = 100;
-            ZipSecureFile.setMinInflateRatio(0);
-
+        public void splitAndStore(File file, int kbPerSplit) throws IOException {
             try {
-                /* Read in the original Excel file. */
+                final int maxRows = 100;
+                ZipSecureFile.setMinInflateRatio(0); // TODO verificar se realmente eh necessaria esta chamada
+
+                FileHelper.logInicio(FileConstants.Extension.XLS);
+
+                // Read in the original Excel file.
                 //OPCPackage pkg = OPCPackage.open(file); // deu ruim aqui!
-                Workbook workbook = WorkbookFactory.create(file);
-                //XSSFWorkbook workbook = new XSSFWorkbook(pkg);
-                //XSSFSheet sheet = workbook.getSheetAt(0);
+                //Workbook workbook = WorkbookFactory.create(file); // este funciona!
+                HSSFWorkbook workbook = new HSSFWorkbook(new FileInputStream(file)); // este tb funciona!
                 Sheet sheet = workbook.getSheetAt(0);
 
-                /* Only split if there are more rows than the desired amount. */
+                // Only split if there are more rows than the desired amount.
                 if (sheet.getPhysicalNumberOfRows() >= maxRows) {
                     List<Workbook> wbs = splitWorkbook(workbook);
                     writeWorkBooks(file.getAbsolutePath(), wbs);
                 }
+
+                /*FileOutputStream fileOutputStream = new FileOutputStream(file, false);
+                BufferedOutputStream buffer = new BufferedOutputStream(fileOutputStream);
+                IOUtils.writeLines(lines, System.getProperty("line.separator"), buffer, StandardCharsets.UTF_8.name());
+                buffer.flush();
+                fileOutputStream.close();*/
+
                 workbook.close();
-                //} catch (EncryptedDocumentException | IOException | InvalidFormatException e) {
-            } catch (EncryptedDocumentException | IOException e) {
+            //} catch (EncryptedDocumentException | IOException | InvalidFormatException e) {
+            } catch (EncryptedDocumentException e) {
                 e.printStackTrace();
                 // TODO implementar
+            } finally {
+                FileHelper.logFim(FileConstants.Extension.XLS);
             }
-
-            return null;
         }
 
-        private List<Workbook> splitWorkbook(org.apache.poi.ss.usermodel.Workbook workbook) throws IOException {
+        private List<Workbook> splitWorkbook(Workbook workbook) throws IOException {
             final int maxRows = 100;
-            List<org.apache.poi.ss.usermodel.Workbook> workbooks = new ArrayList<org.apache.poi.ss.usermodel.Workbook>();
+            List<Workbook> workbooks = new ArrayList<org.apache.poi.ss.usermodel.Workbook>();
 
-            //Workbook wb = new SXSSFWorkbook();
-            org.apache.poi.ss.usermodel.Workbook wb = WorkbookFactory.create(false);
+            Workbook wb = WorkbookFactory.create(false);
             Sheet newSheet = wb.createSheet();
 
             Row newRow = null;
@@ -248,7 +254,7 @@ public enum FileHandlerSingleton {
             Sheet sheet = workbook.getSheetAt(0);
 
             for (Row row : sheet) {
-                /* Time to create a new workbook? */
+                // Time to create a new workbook?
                 if (rowCount == maxRows) {
                     workbooks.add(wb);
                     wb = WorkbookFactory.create(false);
@@ -273,7 +279,7 @@ public enum FileHandlerSingleton {
                 // https://svn.apache.org/repos/asf/poi/trunk/src/examples/src/org/apache/poi/xssf/eventusermodel/XLSX2CSV.java
             }
 
-            /* Only add the last workbook if it has content */
+            // Only add the last workbook if it has content
             if (wb.getSheetAt(0).getPhysicalNumberOfRows() > 0) {
                 workbooks.add(wb);
             }
@@ -305,25 +311,19 @@ public enum FileHandlerSingleton {
             return newCell;
         }
 
-        /* Write all the workbooks to disk. */
-        private void writeWorkBooks(String filename, List<Workbook> wbs) {
-            FileOutputStream out = null;
-
-            try {
-                for (int i = 0; i < wbs.size(); i++) {
-                    String newFileName = filename.substring(0, filename.length() - 4);
-                    out = new FileOutputStream(new File(newFileName + "_" + (i + 1) + ".xls"));
-                    wbs.get(i).write(out);
-                    out.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+        // Write all the workbooks to disk.
+        private void writeWorkBooks(String filename, List<Workbook> wbs) throws IOException {
+            for (int i = 0; i < wbs.size(); i++) {
+                String newFileName = filename.substring(0, filename.length() - 4);
+                FileOutputStream out = new FileOutputStream(new File(newFileName + "_" + (i + 1) + "."
+                        + FileConstants.Extension.XLS));
+                wbs.get(i).write(out);
+                out.close();
             }
         }
 
         private List<String> readFile(File file) throws IOException {
-            List<String> lines = null;
-
+            List<String> lines = new ArrayList<>();
             Map<Integer, List<String>> dataMap = new HashMap<>();
 
             FileInputStream fileInputStream = new FileInputStream(file);
@@ -369,6 +369,7 @@ public enum FileHandlerSingleton {
 
             // iterando com lambdas e Stream API
             dataMap.entrySet().stream().forEach(e -> System.out.println(e.getKey() + ": " + e.getValue()));
+            dataMap.entrySet().stream().forEach(e -> lines.add(e.getValue().toString()));
 
             return lines;
         }
@@ -381,5 +382,5 @@ public enum FileHandlerSingleton {
 
     public abstract List<String> read(final File file) throws IOException;
 
-    public abstract Map<Path, List<String>> split(final File file, final int kbPerSplit) throws IOException;
+    public abstract void splitAndStore(final File file, final int kbPerSplit) throws IOException;
 }

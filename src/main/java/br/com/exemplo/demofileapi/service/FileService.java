@@ -4,6 +4,7 @@ import br.com.exemplo.demofileapi.util.FileConstants;
 import br.com.exemplo.demofileapi.util.Utils;
 import br.com.exemplo.demofileapi.util.file.FileHandlerFactory;
 import br.com.exemplo.demofileapi.util.file.FileHandlerSingleton;
+import br.com.exemplo.demofileapi.util.file.FileHelper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,21 +44,18 @@ public class FileService {
     }
 
     public String storeFile(MultipartFile multipartFile) {
-
         String fileName = null;
 
         try {
             Optional<String> originalFilename = Optional.ofNullable(multipartFile.getOriginalFilename());
+
+            System.out.println("Lendo arquivo " + originalFilename.get());
 
             // Normalize file name
             fileName = StringUtils.cleanPath(originalFilename.orElse(""));
 
             File file = multipartFileToFile(multipartFile);
             final String extension = FilenameUtils.getExtension(fileName);
-
-            FileHandlerSingleton fileHandler = FileHandlerFactory.getFileHandler(extension);
-            List<String> lines = fileHandler.read(file);
-
 
             // Copy file to the target location (Replacing existing file with the same name)
             // Path targetLocation = this.fileStorageLocation.resolve(fileName);
@@ -79,8 +77,9 @@ public class FileService {
 
             if (fileSize > bytesPerSplit) {
                 // file split required
-                Map<Path, List<String>> filePartsMap = fileHandler.split(file, 10);// 10 KB
-                Utils.createTextFiles(filePartsMap);
+                FileHandlerSingleton fileHandler = FileHandlerFactory.getFileHandler(extension);
+                fileHandler.splitAndStore(file, 10);// 10 KB
+                //FileHelper.createTextFiles(filePartsMap);
             } else {
                 // file split not required
                 //FileUtils.copyFileToDirectory(file, fileStorageLocation.toFile());
