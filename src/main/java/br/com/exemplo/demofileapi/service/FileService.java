@@ -1,5 +1,6 @@
 package br.com.exemplo.demofileapi.service;
 
+import br.com.exemplo.demofileapi.to.UploadFileResponse;
 import br.com.exemplo.demofileapi.util.FileConstants;
 import br.com.exemplo.demofileapi.util.Utils;
 import br.com.exemplo.demofileapi.util.file.FileHandlerFactory;
@@ -43,8 +44,12 @@ public class FileService {
         }
     }
 
-    public String storeFile(MultipartFile multipartFile) {
+    public UploadFileResponse storeFile(MultipartFile multipartFile) {
+        UploadFileResponse uploadFileResponse = null;
+
         String fileName = null;
+        String extension = null;
+        long fileSize = 0;
 
         try {
             Optional<String> originalFilename = Optional.ofNullable(multipartFile.getOriginalFilename());
@@ -55,12 +60,11 @@ public class FileService {
             fileName = StringUtils.cleanPath(originalFilename.orElse(""));
 
             File file = multipartFileToFile(multipartFile);
-            final String extension = FilenameUtils.getExtension(fileName);
+            extension = FilenameUtils.getExtension(fileName);
 
             // Copy file to the target location (Replacing existing file with the same name)
             // Path targetLocation = this.fileStorageLocation.resolve(fileName);
             //Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-
 
             long kbPerSplit = 10L;
             final long bytesPerSplit = 1024L * kbPerSplit;
@@ -73,7 +77,7 @@ public class FileService {
             //final long fileSize = fileChannel.size();
 
             // (3) Apache Commons IO
-            long fileSize = FileUtils.sizeOf(file); // bytes
+            fileSize = FileUtils.sizeOf(file); // bytes
 
             if (fileSize > bytesPerSplit) {
                 // file split required
@@ -96,7 +100,7 @@ public class FileService {
             // TODO implementar
         }
 
-        return fileName;
+        return new UploadFileResponse(fileName, "", extension, fileSize, "Upload realizado com sucesso.");
     }
 
     public Resource loadFileAsResource(String fileName) {

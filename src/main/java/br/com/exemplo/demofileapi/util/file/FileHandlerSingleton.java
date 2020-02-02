@@ -23,6 +23,7 @@ import java.util.Map;
  * https://dzone.com/articles/java-singletons-using-enum
  * https://howtodoinjava.com/design-patterns/creational/singleton-design-pattern-in-java/#enum_singleton
  * https://dzone.com/articles/enum-tricks-two-ways-to-extend-enum-functionality
+ * https://www.baeldung.com/creational-design-patterns
  */
 public enum FileHandlerSingleton {
 

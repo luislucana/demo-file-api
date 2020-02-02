@@ -1,6 +1,7 @@
 package br.com.exemplo.demofileapi.controller;
 
 import br.com.exemplo.demofileapi.service.FileService;
+import br.com.exemplo.demofileapi.to.UploadFileResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -28,7 +29,8 @@ public class FileServerController {
 
     @PostMapping(value = "/singlefileupload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> processFile(@RequestParam("file") MultipartFile file) throws IOException {
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody UploadFileResponse processFile(@RequestParam("file") MultipartFile file) throws IOException {
 
         //byte[] bytes = file.getBytes();
 
@@ -36,9 +38,9 @@ public class FileServerController {
         System.out.println("File Content Type: " + file.getContentType());
         //System.out.println("File Content:\n" + new String(bytes));
 
-        String arquivo = fileService.storeFile(file);
+        UploadFileResponse uploadFileResponse = fileService.storeFile(file);
 
-        return (new ResponseEntity<>("Arquivo processado com sucesso", null, HttpStatus.OK));
+        return uploadFileResponse;
     }
 
     @RequestMapping(path = "/multiplefileupload/", method = RequestMethod.POST)
