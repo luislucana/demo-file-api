@@ -31,6 +31,15 @@ public class FileServerController {
         return (new ResponseEntity<>("funcionou!", HttpStatus.OK));
     }
 
+    /**
+     * Para gerar mocks de arquivo:
+     * https://mockaroo.com/
+     * https://www.generatedata.com/
+     *
+     * @param file
+     * @return
+     * @throws IOException
+     */
     @PostMapping(value = "/singlefileupload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)

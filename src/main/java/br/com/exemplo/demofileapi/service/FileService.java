@@ -6,6 +6,7 @@ import br.com.exemplo.demofileapi.util.Utils;
 import br.com.exemplo.demofileapi.util.file.FileHandlerFactory;
 import br.com.exemplo.demofileapi.util.file.FileHandlerSingleton;
 import br.com.exemplo.demofileapi.util.file.FileHelper;
+import br.com.exemplo.demofileapi.util.file.layout.LayoutValidator;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +27,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Verificar
+ * https://www.java-success.com/processing-large-files-efficiently-java-part-1/
+ */
 @Service
 public class FileService {
 
     private final Path fileStorageLocation;
+
+    @Autowired
+    private LayoutValidator layoutValidator;
 
     @Autowired
     public FileService() {
@@ -61,6 +69,9 @@ public class FileService {
 
             File file = multipartFileToFile(multipartFile);
             extension = FilenameUtils.getExtension(fileName);
+
+            // validar layout
+            layoutValidator.validate(file);
 
             // Copy file to the target location (Replacing existing file with the same name)
             // Path targetLocation = this.fileStorageLocation.resolve(fileName);

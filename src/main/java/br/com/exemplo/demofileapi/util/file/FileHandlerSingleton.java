@@ -75,7 +75,7 @@ public enum FileHandlerSingleton {
 
                     while ((i < lines.size()) && ((qtdeBytes + lines.get(i).getBytes().length) < bytesPerSplit)) {
                         // TODO remover esta linha que somente printa as linhas do arquivo no console
-                        System.out.println(lines.get(i));
+                        //System.out.println(lines.get(i));
 
                         byte[] bytes = lines.get(i).getBytes();
                         qtdeBytes = qtdeBytes + bytes.length;
@@ -100,8 +100,8 @@ public enum FileHandlerSingleton {
             try {
                 FileHelper.logInicio(FileConstants.Extension.CSV);
 
-                //lines = FileUtils.readLines(file, StandardCharsets.UTF_8);
-                lines = readCSVFile(file);
+                lines = FileUtils.readLines(file, StandardCharsets.UTF_8);
+                //lines = readCSVFile(file);
 
             } finally {
                 FileHelper.logFim(FileConstants.Extension.CSV);
@@ -141,7 +141,7 @@ public enum FileHandlerSingleton {
 
                     while ((i < lines.size()) && ((qtdeBytes + lines.get(i).getBytes().length) < bytesPerSplit)) {
                         // TODO remover esta linha que somente printa as linhas do arquivo no console
-                        System.out.println(lines.get(i));
+                        //System.out.println(lines.get(i));
 
                         byte[] bytes = lines.get(i).getBytes();
                         qtdeBytes = qtdeBytes + bytes.length;
@@ -278,6 +278,8 @@ public enum FileHandlerSingleton {
 
                 // TODO Verificar se o exemplo do link abaixo possui melhor desempenho
                 // https://svn.apache.org/repos/asf/poi/trunk/src/examples/src/org/apache/poi/xssf/eventusermodel/XLSX2CSV.java
+                // TODO Verificar tambem se o uso de Spliterator torna mais facil este processo de split
+                // https://www.baeldung.com/java-spliterator
             }
 
             // Only add the last workbook if it has content
