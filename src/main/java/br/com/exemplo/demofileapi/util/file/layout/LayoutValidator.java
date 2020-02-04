@@ -98,7 +98,7 @@ public class LayoutValidator {
 
     private void validateHeader(final LayoutFile layout, final String firstLine) throws InvalidLayoutException {
         String[] headerTitlesFromFile = null;
-        // TODO implementar
+
         if (StringUtils.isNotBlank(layout.getSeparator())) {
             // TODO validar separador
             headerTitlesFromFile = firstLine.split(layout.getSeparator());

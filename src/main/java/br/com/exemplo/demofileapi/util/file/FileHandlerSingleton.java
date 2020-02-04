@@ -378,11 +378,6 @@ public enum FileHandlerSingleton {
         }
     };
 
-    private FileHandlerSingleton() {
-        // to prevent creating another instance
-        // https://javarevisited.blogspot.com/2012/07/why-enum-singleton-are-better-in-java.html
-    }
-
     public abstract List<String> read(final File file) throws IOException;
 
     public abstract void splitAndStore(final File file, final int kbPerSplit) throws IOException;
