@@ -26,6 +26,9 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * https://www.baeldung.com/spring-classpath-file-access
+ */
 @Component
 public class LayoutValidator {
 
@@ -42,7 +45,7 @@ public class LayoutValidator {
     private Resource layoutXLS;
 
     public void validate(File file) throws InvalidLayoutException, IOException {
-        // TODO implementar
+        // TODO terminar de implementar
 
         String extension = FilenameUtils.getExtension(file.getName());
 

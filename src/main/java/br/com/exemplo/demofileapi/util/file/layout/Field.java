@@ -1,6 +1,7 @@
 package br.com.exemplo.demofileapi.util.file.layout;
 
 public class Field {
+
     private Integer size;
 
     private String name;

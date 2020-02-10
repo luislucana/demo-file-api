@@ -15,12 +15,6 @@ public class LayoutFile {
 
     private Map<String, List<Field>> rowFields;
 
-    //private Header header;
-
-    //private Detail detail;
-
-    //private Trailler trailler;
-
     public String getSeparator() {
         return separator;
     }
@@ -44,6 +38,7 @@ public class LayoutFile {
     public void setRowFields(Map<String, List<Field>> rowFields) {
         this.rowFields = rowFields;
     }
+
 //@Override
     //public String toString() {
 //        return "LayoutFile [separator = " + separator + ", header = " + header + ", detail = "

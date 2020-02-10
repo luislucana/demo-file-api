@@ -16,6 +16,10 @@ import org.springframework.context.annotation.ComponentScan;
  * ANSI usa um único byte ao passo que UTF-8 usa uma codificação multibyte.
  * UTF-8 pode representar uma gama de caracteres muito maior que o bastante limitado ANSI.
  * Pontos de código UTF-8 são uniformemente padronizados enquanto que o ANSI possui muitas diferentes versões.
+ *
+ * java -cp ../lib/hsqldb.jar org.hsqldb.server.Server --database.0 file:files_db --dbname.0 files_db
+ *
+ * java -cp ../lib/hsqldb.jar org.hsqldb.util.DatabaseManagerSwing
  */
 //@EnableAutoConfiguration
 @EnableConfigurationProperties({

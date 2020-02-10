@@ -6,7 +6,10 @@ import br.com.exemplo.demofileapi.util.Utils;
 import br.com.exemplo.demofileapi.util.file.FileHandlerFactory;
 import br.com.exemplo.demofileapi.util.file.FileHandlerSingleton;
 import br.com.exemplo.demofileapi.util.file.FileHelper;
+import br.com.exemplo.demofileapi.util.file.layout.LayoutData;
+import br.com.exemplo.demofileapi.util.file.layout.LayoutFile;
 import br.com.exemplo.demofileapi.util.file.layout.LayoutValidator;
+import com.google.gson.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +22,12 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Verificar
@@ -38,6 +40,8 @@ public class FileService {
 
     @Autowired
     private LayoutValidator layoutValidator;
+
+    private GsonBuilder builder = new GsonBuilder();
 
     @Autowired
     public FileService() {
@@ -114,6 +118,56 @@ public class FileService {
         return new UploadFileResponse(fileName, "", extension, fileSize, "Upload realizado com sucesso.");
     }
 
+    public String createCustomLayout(final String customLayoutData) throws IOException {
+
+        //File customLayoutFile = multipartFileToFile(layoutMultipartFile);
+
+        //String customLayout = FileUtils.readFileToString(customLayoutFile, StandardCharsets.UTF_8);
+
+        try {
+            Gson gson = builder.create();
+            LayoutData layoutData = gson.fromJson(customLayoutData, LayoutData.class);
+            System.out.println("deu certo");
+
+            List<String> atributosEsperadosJson = new ArrayList<>();
+            atributosEsperadosJson.add("name");
+            atributosEsperadosJson.add("description");
+            atributosEsperadosJson.add("version");
+            atributosEsperadosJson.add("layout");
+            atributosEsperadosJson.add("separator");
+
+            JsonElement element = JsonParser.parseString(customLayoutData);
+            JsonObject obj = element.getAsJsonObject(); // since you know it's a JsonObject
+            Set<Map.Entry<String, JsonElement>> entries = obj.entrySet(); // will return members of your object
+
+            for (Map.Entry<String, JsonElement> entry: entries) {
+                //if (!entry.getValue().isJsonPrimitive()) {
+                if (entry.getKey().equals("layout")) {
+                    JsonElement jsonElement = entry.getValue();
+                    JsonObject layoutJsonObject = jsonElement.getAsJsonObject();
+                    Set<Map.Entry<String, JsonElement>> layoutEntries = layoutJsonObject.entrySet();
+
+                    for (Map.Entry<String, JsonElement> layoutEntry : layoutEntries) {
+                        if (!atributosEsperadosJson.contains(layoutEntry.getKey())) {
+                            throw new RuntimeException("Atributo " + layoutEntry.getKey() + " desconhecido!!");
+                        }
+                    }
+                }
+
+                if (!atributosEsperadosJson.contains(entry.getKey())) {
+                    throw new RuntimeException("Atributo " + entry.getKey() + " desconhecido!");
+                }
+            }
+
+            System.out.println("deu certo tb");
+
+        } catch (JsonSyntaxException jsonSyntaxException) {
+            throw new RuntimeException("Layout invalido!");
+        }
+
+        return "sucesso";
+    }
+
     public Resource loadFileAsResource(String fileName) {
         Resource resource = null;
 
@@ -134,7 +188,6 @@ public class FileService {
         return resource;
     }
 
-    // TODO Esta incompleto, nao funciona!
     public File multipartFileToFile(MultipartFile mpfile) {
 
         File file = new File(fileStorageLocation.toString(), mpfile.getOriginalFilename());

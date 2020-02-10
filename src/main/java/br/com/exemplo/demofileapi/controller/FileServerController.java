@@ -2,6 +2,7 @@ package br.com.exemplo.demofileapi.controller;
 
 import br.com.exemplo.demofileapi.service.FileService;
 import br.com.exemplo.demofileapi.to.UploadFileResponse;
+import br.com.exemplo.demofileapi.util.file.layout.LayoutData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -13,11 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.net.FileNameMap;
-import java.net.URI;
-import java.net.URLConnection;
 import java.nio.file.Files;
-import java.util.List;
 
 @RestController
 @RequestMapping("/demo-file-api")
@@ -45,8 +42,6 @@ public class FileServerController {
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody UploadFileResponse processFile(@RequestParam("file") MultipartFile file) throws IOException {
 
-        //byte[] bytes = file.getBytes();
-
         System.out.println("File Name: " + file.getOriginalFilename());
         System.out.println("File Content Type: " + file.getContentType());
         //System.out.println("File Content:\n" + new String(bytes));
@@ -56,19 +51,15 @@ public class FileServerController {
         return uploadFileResponse;
     }
 
-    // TODO Nao funciona, falta implementar e chamar a camada Service
-    @RequestMapping(path = "/multiplefileupload/", method = RequestMethod.POST)
-    public ResponseEntity<String> processFile(@RequestParam("files") List<MultipartFile> files) throws IOException {
+    // TODO Implementar envio de layout?
+    @PostMapping(value = "/layout", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> createCustomLayout(@RequestBody String layoutData) throws IOException {
 
-        for (MultipartFile file : files) {
-            byte[] bytes = file.getBytes();
+        System.out.println(layoutData);
 
-            System.out.println("File Name: " + file.getOriginalFilename());
-            System.out.println("File Content Type: " + file.getContentType());
-            System.out.println("File Content:\n" + new String(bytes));
-        }
+        String response = fileService.createCustomLayout(layoutData);
 
-        return (new ResponseEntity<>("Successful", null, HttpStatus.OK));
+        return (new ResponseEntity<>("Layout recebido com sucesso! (" + response + ")", null, HttpStatus.OK));
     }
 
     @GetMapping("/downloadFile/{fileName:.+}")
