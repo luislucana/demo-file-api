@@ -66,6 +66,7 @@ public class FileHelper {
 
     // remover
     private List<String> getTextFileLines(final File textFile) throws IOException {
+        // TODO Charset cp1252 = Charset.forName("CP1252"); ? (ANSI)
         LineIterator it = org.apache.commons.io.FileUtils.lineIterator(textFile, StandardCharsets.UTF_8.name());
         List<String> lines = org.apache.commons.io.FileUtils.readLines(textFile, StandardCharsets.UTF_8);
 

@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class LayoutValidator {
@@ -64,13 +65,12 @@ public class LayoutValidator {
             FileHandlerSingleton fileHandler = FileHandlerFactory.getFileHandler(extension);
             List<String> lines = fileHandler.read(file);
 
-            if (layoutFile.getHeader() != null) {
-                validateHeader(layoutFile, lines.get(0));
+            Map<String, String> rowIdentifiers = layoutFile.getRowIdentifiers();
+            Map<String, List<Field>> rows = layoutFile.getRowFields();
+
+            if (rowIdentifiers.size() != rows.size()) {
+                throw new RuntimeException("Configuracao de layout invalida!");
             }
-
-            validateDetail(layoutFile, lines);
-
-            validateTrailler(layoutFile, lines.get(lines.size() - 1));
 
         } else if (StringUtils.equalsIgnoreCase(extension, FileConstants.Extension.XLS)) {
             jsonLayoutConfig = layoutXLS.getFile();
@@ -96,15 +96,15 @@ public class LayoutValidator {
         System.out.println(layoutFile.toString());
     }
 
-    private void validateHeader(final LayoutFile layout, final String firstLine) throws InvalidLayoutException {
+    /*private void validateHeader(final LayoutFile layout, final String firstLine) throws InvalidLayoutException {
         String[] headerTitlesFromFile = null;
 
         if (StringUtils.isNotBlank(layout.getSeparator())) {
             // TODO validar separador
             headerTitlesFromFile = firstLine.split(layout.getSeparator());
         } else {
-            /* TODO fazer split pela qtde de caracteres por nome de coluna
-                (obter a qtde de caracteres no layout_[extensao].json) */
+            // TODO fazer split pela qtde de caracteres por nome de coluna
+            //  (obter a qtde de caracteres no layout_[extensao].json)
         }
 
         Header header = layout.getHeader();
@@ -152,7 +152,7 @@ public class LayoutValidator {
                 }
             }
         }
-    }
+    }*/
 
     private void validateDetail(final LayoutFile layout, List<String> lines) throws InvalidLayoutException {
         // TODO implementar

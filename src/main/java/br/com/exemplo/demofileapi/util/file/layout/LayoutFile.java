@@ -1,6 +1,7 @@
 package br.com.exemplo.demofileapi.util.file.layout;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Json to JAVA
@@ -10,13 +11,15 @@ public class LayoutFile {
 
     private String separator;
 
-    private Header header;
+    private Map<String, String> rowIdentifiers;
 
-    private Detail detail;
+    private Map<String, List<Field>> rowFields;
 
-    private List<Detail> details;
+    //private Header header;
 
-    private Trailler trailler;
+    //private Detail detail;
+
+    //private Trailler trailler;
 
     public String getSeparator() {
         return separator;
@@ -26,41 +29,33 @@ public class LayoutFile {
         this.separator = separator;
     }
 
-    public Header getHeader() {
-        return header;
+    public Map<String, String> getRowIdentifiers() {
+        return rowIdentifiers;
     }
 
-    public void setHeader(Header header) {
-        this.header = header;
+    public void setRowIdentifiers(Map<String, String> rowIdentifiers) {
+        this.rowIdentifiers = rowIdentifiers;
     }
 
-    public Detail getDetail() {
-        return detail;
+    public Map<String, List<Field>> getRowFields() {
+        return rowFields;
     }
 
-    public void setDetail(Detail detail) {
-        this.detail = detail;
+    public void setRowFields(Map<String, List<Field>> rowFields) {
+        this.rowFields = rowFields;
     }
-
-    public List<Detail> getDetails() {
-        return details;
-    }
-
-    public void setDetails(List<Detail> details) {
-        this.details = details;
-    }
-
-    public Trailler getTrailler() {
-        return trailler;
-    }
-
-    public void setTrailler(Trailler trailler) {
-        this.trailler = trailler;
-    }
+//@Override
+    //public String toString() {
+//        return "LayoutFile [separator = " + separator + ", header = " + header + ", detail = "
+//                + detail + ", trailler = " + trailler + "]";
+//    }
 
     @Override
     public String toString() {
-        return "LayoutFile [separator = " + separator + ", header = " + header + ", details = "
-                + details + ", trailler = " + trailler + "]";
+        return "LayoutFile {" +
+                "separator='" + separator + '\'' +
+                ", rowIdentifiers=" + rowIdentifiers +
+                ", rowFields=" + rowFields +
+                '}';
     }
 }

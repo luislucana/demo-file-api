@@ -16,6 +16,8 @@ public class Detail {
 
     @Override
     public String toString() {
-        return "Detail [fields = " + fields + "]";
+        return "Detail {" +
+                "fields=" + fields +
+                '}';
     }
 }
