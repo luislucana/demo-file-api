@@ -2,7 +2,7 @@ package br.com.exemplo.demofileapi.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties(prefix = "file")
+//@ConfigurationProperties(prefix = "file")
 public class FileStorageProperties {
     private String uploadDir;
 

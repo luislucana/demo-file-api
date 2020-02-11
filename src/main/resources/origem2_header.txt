@@ -1,1 +1,0 @@
-id;nome;documento;datanascimento;nomepai;nomemae;endereco;telefone;col9;col10;col11;col12;col13;col14;profissao

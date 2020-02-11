@@ -1,13 +1,15 @@
 package br.com.exemplo.demofileapi.service;
 
+import br.com.exemplo.demofileapi.persistence.model.FileImport;
+import br.com.exemplo.demofileapi.persistence.model.FileImportData;
+import br.com.exemplo.demofileapi.persistence.model.Layout;
+import br.com.exemplo.demofileapi.persistence.repository.FileImportRepository;
+import br.com.exemplo.demofileapi.persistence.repository.LayoutRepository;
 import br.com.exemplo.demofileapi.to.UploadFileResponse;
 import br.com.exemplo.demofileapi.util.FileConstants;
-import br.com.exemplo.demofileapi.util.Utils;
 import br.com.exemplo.demofileapi.util.file.FileHandlerFactory;
 import br.com.exemplo.demofileapi.util.file.FileHandlerSingleton;
-import br.com.exemplo.demofileapi.util.file.FileHelper;
 import br.com.exemplo.demofileapi.util.file.layout.LayoutData;
-import br.com.exemplo.demofileapi.util.file.layout.LayoutFile;
 import br.com.exemplo.demofileapi.util.file.layout.LayoutValidator;
 import com.google.gson.*;
 import org.apache.commons.io.FileUtils;
@@ -16,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,12 +37,19 @@ import java.util.*;
  * https://www.java-success.com/processing-large-files-efficiently-java-part-1/
  */
 @Service
+@Transactional
 public class FileService {
 
     private final Path fileStorageLocation;
 
     @Autowired
     private LayoutValidator layoutValidator;
+
+    @Autowired
+    private FileImportRepository fileImportRepository;
+
+    @Autowired
+    private LayoutRepository layoutRepository;
 
     private GsonBuilder builder = new GsonBuilder();
 
@@ -56,6 +66,7 @@ public class FileService {
         }
     }
 
+    @Transactional
     public UploadFileResponse storeFile(MultipartFile multipartFile) {
         UploadFileResponse uploadFileResponse = null;
 
@@ -75,7 +86,7 @@ public class FileService {
             extension = FilenameUtils.getExtension(fileName);
 
             // validar layout
-            layoutValidator.validate(file);
+            //layoutValidator.validate(file);
 
             // Copy file to the target location (Replacing existing file with the same name)
             // Path targetLocation = this.fileStorageLocation.resolve(fileName);
@@ -97,13 +108,15 @@ public class FileService {
             if (fileSize > bytesPerSplit) {
                 // file split required
                 FileHandlerSingleton fileHandler = FileHandlerFactory.getFileHandler(extension);
-                fileHandler.splitAndStore(file, 10);// 10 KB
+                //fileHandler.splitAndStore(file, 10);// 10 KB
                 //FileHelper.createTextFiles(filePartsMap);
             } else {
                 // file split not required
                 //FileUtils.copyFileToDirectory(file, fileStorageLocation.toFile());
                 Files.copy(file.toPath(), fileStorageLocation.resolve(file.getName()), StandardCopyOption.REPLACE_EXISTING);
             }
+
+            persistFile(file);
 
             //File tempDir = FileUtils.getTempDirectory();
             //FileUtils.copyFileToDirectory(realFile, tempDir);
@@ -116,6 +129,35 @@ public class FileService {
         }
 
         return new UploadFileResponse(fileName, "", extension, fileSize, "Upload realizado com sucesso.");
+    }
+
+    private void persistFile(File file) throws IOException {
+        String extension = FilenameUtils.getExtension(file.getName());
+
+        List<String> lines = FileUtils.readLines(file, StandardCharsets.UTF_8);
+
+        long fileSize = FileUtils.sizeOf(file); // bytes
+
+        Layout layout = layoutRepository.getOne((long) 50);
+
+        FileImport fileImport = new FileImport();
+        fileImport.setFileExtension(extension);
+        fileImport.setFilename(file.getName());
+        fileImport.setSeparator(";");
+        fileImport.setSizeInKb(String.valueOf(fileSize / 1024));
+        fileImport.setUsername("[NOME DO USUARIO]");
+        fileImport.setLayout(layout);
+
+        List<FileImportData> fileImportDataList = new ArrayList<>();
+        for (String line : lines) {
+            FileImportData fileImportData = new FileImportData();
+            fileImportData.setFileImport(fileImport);
+            fileImportData.setRow(line);
+            fileImportDataList.add(fileImportData);
+        }
+        fileImport.setFileImportData(fileImportDataList);
+
+        FileImport savedFileImport = fileImportRepository.save(fileImport);
     }
 
     public String createCustomLayout(final String customLayoutData) throws IOException {
@@ -166,6 +208,10 @@ public class FileService {
         }
 
         return "sucesso";
+    }
+
+    private void persistLayout(final LayoutData layoutData) {
+        layoutRepository.save(layoutData)
     }
 
     public Resource loadFileAsResource(String fileName) {

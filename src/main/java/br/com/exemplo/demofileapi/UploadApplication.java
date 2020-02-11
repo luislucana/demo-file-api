@@ -1,12 +1,10 @@
 package br.com.exemplo.demofileapi;
 
-import br.com.exemplo.demofileapi.config.FileStorageProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
  * https://www.serasaexperian.com.br/landingpage/validador-pefin
@@ -22,13 +20,14 @@ import org.springframework.context.annotation.ComponentScan;
  * java -cp ../lib/hsqldb.jar org.hsqldb.util.DatabaseManagerSwing
  */
 //@EnableAutoConfiguration
-@EnableConfigurationProperties({
-        FileStorageProperties.class
-})
+//@EnableConfigurationProperties({
+    //FileStorageProperties.class
+//})
+@EnableTransactionManagement
 @ComponentScan("br.com.exemplo.demofileapi.*")
 @EntityScan("br.com.exemplo.demofileapi.persistence.model")
 @SpringBootApplication
-public class UploadApplication extends SpringBootServletInitializer {
+public class UploadApplication {
 
     public static void main(final String[] args) {
         SpringApplication.run(UploadApplication.class, args);
